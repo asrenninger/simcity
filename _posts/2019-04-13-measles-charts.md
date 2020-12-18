@@ -8,6 +8,7 @@ altair-loader:
   altair-chart-1: "charts/measlesAltair.json"
 hv-loader:
   hv-chart-1: "charts/heatmap.html"
+  hv-chart-2: "charts/network.html"
 toc: true
 toc_sticky: true
 ---
@@ -32,6 +33,7 @@ alt.renderers.enable('notebook')
 Lastly, the measles incidence produced using the HvPlot package:
 
 <div id="hv-chart-1"></div>
+<div id="hv-chart-2"></div>
 
 ## Notes
 
