@@ -9,8 +9,8 @@ altair-loader:
 hv-loader:
   hv-chart-1: "charts/heatmap.html"
   hv-chart-2: "charts/network.html"
-toc: true
-toc_sticky: true
+toc: false
+toc_sticky: false
 ---
 
 This post will show examples of embedding interactive charts produced using [Altair](https://altair-viz.github.io) and [Hvplot](https://hvplot.pyviz.org/).
