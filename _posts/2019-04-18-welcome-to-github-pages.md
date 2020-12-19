@@ -1,6 +1,6 @@
 ---
-title: "Welcome to GitHub Pages!"
-date: 2019-04-18T15:34:30-04:00
+title: "Chapter 1 | Introduction"
+date: 2020-12-01T00:00:00-00:00
 categories:
   - blog
 tags:
@@ -8,25 +8,64 @@ tags:
   - update
 ---
 
-You'll find this post in your `_posts` directory. Go ahead and edit it and commit your changes to to the repository. GitHub will automatically rebuild your site. Wait a few minutes and then refresh the site link to see the new changes. There are three main ways to make changes to your site:
+## The Geography of Urban Form in America (and abroad)
 
-- Edit files within your in the browser at GitHub.com
-- Use a third party GitHub content editor, like [Prose by Development Seed](https://prose.io).
-- Clone down your repository and make updates locally, then push them to your GitHub repository.
+In this project we use raster and vector data on the form of cities to compare urban core morphologies across America. To do this, we aggregate street networks, building footprints, vegetation and population from a combination of open source resources. The result is a similarity score for cities, focusing on extracts of downtowns, allowing users to compare built environments across the country, along with twin cluster analyses to build categories of these environs. Motivating this analysis is the desire for a better way of comparing the focal areas in cities—the area where tourists visit, workers commute, and residents go out. If we are going to relate cities to each other, we want to look at the core—in several senses of the word. This is difficult to distill in a replicable, codable manner; we choose a method here but there are doubtless many others.       
 
-**To add new posts:** Add a file in the `_posts` directory that follows the convention `YYYY-MM-DD-name-of-post.ext` and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.
+1. [datasets](#datasets)
+2. [questions](#questions)
+3. [methods](#methods)
+4. [requirements](#requirements)
 
-Jekyll also offers powerful support for code snippets:
+## datasets
 
-```python
-def print_message(message):
-  print(message)
+The bulk of these data will come from **osm** via the **osmnx** interface. Building on [past](https://geoffboeing.com/2019/09/urban-street-network-orientation/) and [recent](https://geoffboeing.com/2020/11/off-grid-back-again/#more-5182) work from Geoff Boeing, I will determine if a city is flat or hilly, gridded or messy, dense or sparse, paved or planted, and how busy it gets at day and at night.
 
-print_message("Welcome to GitHub Pages")
-```
+#### Measures of Urban Form
+![](https://raw.githubusercontent.com/asrenninger/wrangling/master/viz/morphology.gif)
 
-Check out the [Jekyll docs][jekyll-docs] for more info on how to get the most out of Jekyll.
+I will also compute how repetitive a city using a measure called *fractal dimension*, which roughly captures how much a city at a given scale is like itself at another scale: does a city look the same if you take bigger or smaller tiles of it?  
 
-[jekyll-docs]: https://jekyllrb.com/docs/home
-[jekyll-gh]: https://github.com/jekyll/jekyll
-[jekyll-talk]: https://talk.jekyllrb.com/
+#### Fractal Dimension by Buildings and Streets
+![](https://raw.githubusercontent.com/asrenninger/wrangling/master/viz/fractal-dimension.png)
+
+[Oak Ridge National Laboratory](https://geoplatform.maps.arcgis.com/home/item.html?id=e431a6410145450aa56606568345765b) provides information on daytime and nighttime population at a resolution of 100 meters, which we can use to estimate how busy an area is—and whether or not people are concentrated on a few pixels or many, which also helps describe the character of an area.   
+
+#### Day-Night Variations
+![](https://raw.githubusercontent.com/asrenninger/wrangling/master/viz/spikes.gif)
+
+Finally, [Google](https://developers.google.com/earth-engine/datasets) provides access to remote sensing data via its `earth engine` library. We use this interface to perform zonal statistics on satellite images in the cloud before exporting tabular data. This critically saves memory and allows us to perform computations across the country without committing rasters that size to working memory.    
+
+## questions
+
+The question we are trying to answer is how much variation is there across "Downtown America" and what patterns occur regardless of the state or region? Which cities are similar and which are different? We create a similarity score for urban cores, associating each city with others by the character its built environment, in order to relate cities to each other, along with clustering processes to group cities together. Clustering, including k-means and hierarchical, provide a way checking the robustness of our similarity score: deviations between techniques signal less certainty in these relationships.   
+
+## methods
+
+We scrape data on cities in the United States from [wikipedia](https://en.wikipedia.org/wiki/List_of_United_States_cities_by_population) and estimate the downtown by geocoding for "City Hall" in each city name—so a query would be "City Hall, City of New York, New York, USA". Most mapping and geocoding services fail with such vague language (MapBox and OpenStreetMap struggled in tests), so we use Google Maps.  
+
+#### cities
+![](https://raw.githubusercontent.com/asrenninger/wrangling/master/viz/context.png)
+
+With coordinates for each city hall, we use `osmnx` to select features within a given radius from them. With streets and buildings along with remote sensing data for each downtown (as I define it), we then perform a series of calculations to assess the form.
+
+These include (though possibly more):
++ Fractal dimension
++ Network entropy
++ Mean building size
++ Street gradient
++ Node density
++ Mean edge length
++ Daytime/Nighttime population
++ Vegetation index
+
+In total, we gather 32 indcators of urban form, with minimum, maximum, and mean or median in several categories expanding the list from above. Not all of these are valuable in this analysis—and we attempt to reduce dimensionality in our data by aggregating variables—but they constitute a dataset that may be valuable for future studies.[^1]
+
+The last variable is **grid index**, which comes from a [recent paper](https://osf.io/preprints/socarxiv/t9um6/) by Geoff Boeing; it combines the proportion of intersections that are four-way, the circuity of streets, and orientation entropy of streets—how much variation is there in its bearings, between all streets on a single axis and no streets sharing an axis. We replicate his construction using the same measures and similar techniques from his paper, taking the geometry mean of these variables (after scaling) to produce a single index.
+
+Finally, we use clustering analysis to make sense of the relationships between cities, with k-means to understand broad groups and hierarchical to understand narrow dyads or triads. The similarity score uses a k-nearest neighbors distance calculation, borrowing from sports analytics, allowing us to make tables of first, second, and third most similar cities for any given city. Cities that are closest together in a multidimensional space are more similar; cities farthest away are less similar.
+
+The result is a series of insights into how similarity is distributed across the country and how similarity clusters among both class and location. We find that that many large cities in America like Philadelphia, Chicago and New York—cities on grids, with large commuter populations—are similar by these measures, and that cities like Denver and Boise are also related. The most dissimilary city in America, according to this similarity score and affirmed by hierarchical dendrogram, is Phoenix.  
+
+[^1]: Note that because we are taking tiles of fixed area at each point, many of the above variables are already functionally scaled—the number of nodes and edges are also those number per 2000 * 2000 meter cell. 
+
