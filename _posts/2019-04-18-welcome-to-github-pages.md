@@ -19,17 +19,17 @@ In this project we use raster and vector data on the form of cities to compare u
 
 ## datasets
 
-The bulk of these data will come from **osm** via the **osmnx** interface. Building on [past](https://geoffboeing.com/2019/09/urban-street-network-orientation/) and [recent](https://geoffboeing.com/2020/11/off-grid-back-again/#more-5182) work from Geoff Boeing, I will determine if a city is flat or hilly, gridded or messy, dense or sparse, paved or planted, and how busy it gets at day and at night.
+The bulk of these data come from **osm** via the **osmnx** interface. Building on [past](https://geoffboeing.com/2019/09/urban-street-network-orientation/) and [recent](https://geoffboeing.com/2020/11/off-grid-back-again/#more-5182) work from Geoff Boeing, we determine if a city is flat or hilly, gridded or messy, dense or sparse, paved or planted, and how busy it gets at day and at night. 
 
 #### Measures of Urban Form
 ![](https://raw.githubusercontent.com/asrenninger/wrangling/master/viz/morphology.gif)
 
-I will also compute how repetitive a city using a measure called *fractal dimension*, which roughly captures how much a city at a given scale is like itself at another scale: does a city look the same if you take bigger or smaller tiles of it?  
+We also compute how repetitive a city using a measure called *fractal dimension*, which roughly captures how much a city at a given scale is like itself at another scale: does a city look the same if you take bigger or smaller tiles of it? Fractal dimension is typically used in the study of urban growth but here we are concerned with whether or not your city is assembled from a reproducible pattern or if each block. Because the form of a city is manifest in both its buildings and streets, we build a measure that includes the fractal dimension of both.   
 
 #### Fractal Dimension by Buildings and Streets
 ![](https://raw.githubusercontent.com/asrenninger/wrangling/master/viz/fractal-dimension.png)
 
-[Oak Ridge National Laboratory](https://geoplatform.maps.arcgis.com/home/item.html?id=e431a6410145450aa56606568345765b) provides information on daytime and nighttime population at a resolution of 100 meters, which we can use to estimate how busy an area is—and whether or not people are concentrated on a few pixels or many, which also helps describe the character of an area.   
+[Oak Ridge National Laboratory](https://geoplatform.maps.arcgis.com/home/item.html?id=e431a6410145450aa56606568345765b) provides information on daytime and nighttime population at a resolution of 100 meters, which we use to estimate how busy an area is—and whether or not people are concentrated on a few pixels or many, which also helps describe the character of an area: how many people are around changes your experience of it.    
 
 #### Day-Night Variations
 ![](https://raw.githubusercontent.com/asrenninger/wrangling/master/viz/spikes.gif)
@@ -49,7 +49,7 @@ We scrape data on cities in the United States from [wikipedia](https://en.wikipe
 
 With coordinates for each city hall, we use `osmnx` to select features within a given radius from them. With streets and buildings along with remote sensing data for each downtown (as I define it), we then perform a series of calculations to assess the form.
 
-These include (though possibly more):
+These include:
 + Fractal dimension
 + Network entropy
 + Mean building size
@@ -59,7 +59,7 @@ These include (though possibly more):
 + Daytime/Nighttime population
 + Vegetation index
 
-In total, we gather 32 indcators of urban form, with minimum, maximum, and mean or median in several categories expanding the list from above. Not all of these are valuable in this analysis—and we attempt to reduce dimensionality in our data by aggregating variables—but they constitute a dataset that may be valuable for future studies.[^1]
+In total, we gather 32 indcators of urban form, with minimum, maximum, and mean or median in several categories expanding the list from above. Not all are valuable in this analysis—and we attempt to reduce dimensionality in our data by aggregating variables—but they constitute a dataset that may be valuable for future studies.[^1]
 
 The last variable is **grid index**, which comes from a [recent paper](https://osf.io/preprints/socarxiv/t9um6/) by Geoff Boeing; it combines the proportion of intersections that are four-way, the circuity of streets, and orientation entropy of streets—how much variation is there in its bearings, between all streets on a single axis and no streets sharing an axis. We replicate his construction using the same measures and similar techniques from his paper, taking the geometry mean of these variables (after scaling) to produce a single index.
 
