@@ -16,7 +16,7 @@ theme                  : "minima" #"minimal-mistakes-jekyll"
 
 # Site Settings
 locale: "en-US"
-title: "Builidng a similarity score for cities"
+title: "Buildng a similarity score for cities"
 title_separator: "-"
 name: "Andrew Renninger"
 description: "Cluster and related analysis to understand how city forms are similar"
